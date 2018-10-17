@@ -168,7 +168,7 @@ func make_beat_event(sse_event *sse.Event, worker_id string) (beat.Event, error)
 			"exchange_id":       data.ExchangeID,
 			"breadcrumb":        data.Headers.Breadcrumbid,
 			"body":              data.Body,
-			"firedtime":         data.Headers.Firedtime,
+			"firedtime":         data.Headers.Firedtime.Time,
 			"camel_to_endpoint": data.Properties.ToEndpoint,
 			"camel_timer_name":  data.Properties.CamelTimer.Name,
 		},
