@@ -1,0 +1,9 @@
+- key: cameleventbeat
+  title: cameleventbeat
+  description:
+  fields:
+    - name: counter
+      type: long
+      required: true
+      description: >
+        PLEASE UPDATE DOCUMENTATION
