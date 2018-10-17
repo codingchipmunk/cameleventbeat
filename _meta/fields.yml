@@ -1,9 +1,25 @@
 - key: cameleventbeat
   title: cameleventbeat
   description:
+  meta:
+    - name: worker_id
+      type: string
+    - name: jolokia_time
+      type: time
+    - name: event_processed
+      type: time
   fields:
-    - name: counter
-      type: long
-      required: true
-      description: >
-        PLEASE UPDATE DOCUMENTATION
+    - name: endpoint_uri
+      type: string
+    - name: exchange_id
+      type: string
+    - name: breadcrumb
+      type: string
+    - name: body
+      type: string
+    - name: firedtime
+      type: time
+    - name: camel_to_endpoint
+      type: string
+    - name: camel_timer_name
+      type: string
