@@ -164,8 +164,8 @@ func make_beat_event(sse_event *sse.Event, worker_id string) (beat.Event, error)
 			"event_processed": time.Now(),
 		},
 		Fields: common.MapStr{
-			"endpoint_URI":      data.EndpointURI,
-			"exchange_ID":       data.ExchangeID,
+			"endpoint_uri":      data.EndpointURI,
+			"exchange_id":       data.ExchangeID,
 			"breadcrumb":        data.Headers.Breadcrumbid,
 			"body":              data.Body,
 			"firedtime":         data.Headers.Firedtime,
