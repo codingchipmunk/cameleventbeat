@@ -5,9 +5,9 @@
     - name: worker_id
       type: string
     - name: jolokia_time
-      type: time
+      type: date
     - name: event_processed
-      type: time
+      type: date
   fields:
     - name: endpoint_uri
       type: string
@@ -18,7 +18,7 @@
     - name: body
       type: string
     - name: firedtime
-      type: time
+      type: date
     - name: camel_to_endpoint
       type: string
     - name: camel_timer_name
