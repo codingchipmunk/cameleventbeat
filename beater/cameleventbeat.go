@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/codingchipmunk/JolokiaGo"
+	"github.com/codingchipmunk/JolokiaGo/jolokiaSSEStructs"
 	"github.com/codingchipmunk/JolokiaGo/responseValues"
+	"github.com/codingchipmunk/cameleventbeat/camelsse"
 	"github.com/r3labs/sse"
 	"io/ioutil"
 	"net/http"
@@ -91,8 +93,81 @@ func (bt *Cameleventbeat) Stop() {
 	close(bt.done)
 }
 
+func publish_events(beat_events <-chan beat.Event, done <-chan interface{}, client beat.Client) {
+	for{
+		select {
+		case <- done:
+			return
+		case event := <-beat_events:
+			{
+				client.Publish(event)
+			}
+		}
+	}
+}
 
+func worker(sse_events <-chan *sse.Event, done <-chan interface{}, beat_events chan<- beat.Event, worker_id string) error {
+	var event *sse.Event
+	for {
+		select {
+		case <-done:
+			return nil
+		case event = <-sse_events:
+			{
+				beat_event, err := make_beat_event(event, worker_id)
+				if err != nil {
+					logp.Err("Worker %s encountered an error while trying to make a beat event: %s", worker_id, err)
+				} else {
+					beat_events <- beat_event
+				}
+			}
 
+		}
+	}
+
+}
+
+func unmarshall_sse_event(sse_event *sse.Event) (jolokiaSSEStructs.SSERoot, error) {
+	var root jolokiaSSEStructs.SSERoot
+	err := json.Unmarshal(sse_event.Data, &root)
+	if err != nil {
+		return root, err
+	}
+
+	return root, nil
+}
+
+func make_beat_event(sse_event *sse.Event, worker_id string) (beat.Event, error) {
+	root, err := unmarshall_sse_event(sse_event)
+	if err != nil {
+		return beat.Event{}, err
+	}
+
+	data := camelsse.CamelSSEData{}
+	err = json.Unmarshal(root.Notifications[0].UserData, data)
+	if err != nil {
+		return beat.Event{}, err
+	}
+
+	event := beat.Event{
+		Timestamp: data.TimeStamp,
+		Meta: common.MapStr{
+			"worker_id":       worker_id,
+			"jolokia_time":    root.Notifications[0].TimeStamp.Time,
+			"event_processed": time.Now(),
+		},
+		Fields: common.MapStr{
+			"endpoint_URI":      data.EndpointURI,
+			"exchange_ID":       data.ExchangeID,
+			"breadcrumb":        data.Headers.Breadcrumbid,
+			"body":              data.Body,
+			"firedtime":         data.Headers.Firedtime,
+			"camel_to_endpoint": data.Properties.ToEndpoint,
+			"camel_timer_name":  data.Properties.CamelTimer.Name,
+		},
+	}
+	return event, nil
+}
 
 //	Register the client_ID at the jolokia agent for sse-events for the MBean
 func register_MBean_for_SSE(agent_url string, client_ID string, bean jolokiaClient.MBean) error {
