@@ -2,9 +2,9 @@
 
 ############################# Cameleventbeat ######################################
 
-cameleventbeat:
-  # Defines how often an event is sent to the output
-  period: 1s
+cameleventbeat.mbean:
+  domain: "your.domain.name"
+  context: "pop-os/camel-1"
 
 #================================ General ======================================
 
