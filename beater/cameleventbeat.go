@@ -34,7 +34,7 @@ type eventstreams struct {
 	//	sse_events holds the sse events received by the sse client
 	sse_events chan *sse.Event
 	//	beat_events holds the beat events which have been generated from the sse events and are ready to be transmitted
-	beat_events chan *beat.Event
+	beat_events chan beat.Event
 }
 
 // New creates an instance of cameleventbeat.
@@ -49,7 +49,7 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 		config: c,
 		streams: eventstreams{
 			sse_events:  make(chan *sse.Event),
-			beat_events: make(chan *beat.Event),
+			beat_events: make(chan beat.Event),
 		},
 	}
 	return bt, nil
@@ -72,6 +72,7 @@ func (bt *Cameleventbeat) Run(b *beat.Beat) error {
 		return err
 	}
 
+	logp.Info("Got client id: %s", client_id)
 	// Make a jolokiaClient MBean from the config MBean
 	client_MBean := jolokiaClient.MBean{
 		Domain:  bt.config.MBean.Domain,
@@ -90,7 +91,8 @@ func (bt *Cameleventbeat) Run(b *beat.Beat) error {
 	client := sse.NewClient(bt.config.Jolokia.URL + "/notification/open/" + client_id + "/sse")
 	//launch sse client in seperate goroutine
 	go client.SubscribeChan("notification", bt.streams.sse_events)
-	//bt.client.Publish(event)
+	go worker(bt.streams.sse_events, bt.done, bt.streams.beat_events, "worker-1")
+	publish_events(bt.streams.beat_events, bt.done, bt.client)
 	return nil
 }
 
@@ -100,7 +102,7 @@ func (bt *Cameleventbeat) Stop() {
 	close(bt.done)
 }
 
-func publish_events(beat_events <-chan beat.Event, done <-chan interface{}, client beat.Client) {
+func publish_events(beat_events <-chan beat.Event, done <-chan struct{}, client beat.Client) {
 	for{
 		select {
 		case <- done:
@@ -113,7 +115,7 @@ func publish_events(beat_events <-chan beat.Event, done <-chan interface{}, clie
 	}
 }
 
-func worker(sse_events <-chan *sse.Event, done <-chan interface{}, beat_events chan<- beat.Event, worker_id string) error {
+func worker(sse_events <-chan *sse.Event, done <-chan struct{}, beat_events chan<- beat.Event, worker_id string) error {
 	var event *sse.Event
 	for {
 		select {
@@ -150,8 +152,8 @@ func make_beat_event(sse_event *sse.Event, worker_id string) (beat.Event, error)
 		return beat.Event{}, err
 	}
 
-	data := camelsse.CamelSSEData{}
-	err = json.Unmarshal(root.Notifications[0].UserData, data)
+	var data camelsse.CamelSSEData
+	err = json.Unmarshal(root.Notifications[0].UserData, &data)
 	if err != nil {
 		return beat.Event{}, err
 	}
