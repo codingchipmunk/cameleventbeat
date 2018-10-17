@@ -65,26 +65,33 @@ func (bt *Cameleventbeat) Run(b *beat.Beat) error {
 		return err
 	}
 
-	ticker := time.NewTicker(bt.config.Period)
-	counter := 1
-	for {
-		select {
-		case <-bt.done:
-			return nil
-		case <-ticker.C:
-		}
-
-		event := beat.Event{
-			Timestamp: time.Now(),
-			Fields: common.MapStr{
-				"type":    b.Info.Name,
-				"counter": counter,
-			},
-		}
-		bt.client.Publish(event)
-		logp.Info("Event sent")
-		counter++
+	// Retrieve a client id
+	var client_id string
+	client_id, err = get_SSE_id(bt.config.Jolokia.URL)
+	if err != nil {
+		return err
 	}
+
+	// Make a jolokiaClient MBean from the config MBean
+	client_MBean := jolokiaClient.MBean{
+		Domain:  bt.config.MBean.Domain,
+		Name:    bt.config.MBean.Name,
+		Context: bt.config.MBean.Context,
+		Type:    bt.config.MBean.Type,
+	}
+
+	// Register for events
+	err = register_MBean_for_SSE(bt.config.Jolokia.URL, client_id, client_MBean)
+	if err != nil {
+		return err
+	}
+
+	//create sse client
+	client := sse.NewClient(bt.config.Jolokia.URL + "/notification/open/" + client_id + "/sse")
+	//launch sse client in seperate goroutine
+	go client.SubscribeChan("notification", bt.streams.sse_events)
+	//bt.client.Publish(event)
+	return nil
 }
 
 // Stop stops cameleventbeat.
