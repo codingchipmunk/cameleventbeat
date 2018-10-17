@@ -2,6 +2,7 @@ package beater
 
 import (
 	"fmt"
+	"github.com/r3labs/sse"
 	"time"
 
 	"github.com/elastic/beats/libbeat/beat"
@@ -13,9 +14,18 @@ import (
 
 // Cameleventbeat configuration.
 type Cameleventbeat struct {
-	done   chan struct{}
-	config config.Config
-	client beat.Client
+	done    chan struct{}
+	config  config.Config
+	client  beat.Client
+	streams eventstreams
+}
+
+//	eventstreams holds the streams used for communication between the goroutines
+type eventstreams struct {
+	//	sse_events holds the sse events received by the sse client
+	sse_events chan *sse.Event
+	//	beat_events holds the beat events which have been generated from the sse events and are ready to be transmitted
+	beat_events chan *beat.Event
 }
 
 // New creates an instance of cameleventbeat.
@@ -28,6 +38,10 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	bt := &Cameleventbeat{
 		done:   make(chan struct{}),
 		config: c,
+		streams: eventstreams{
+			sse_events:  make(chan *sse.Event),
+			beat_events: make(chan *beat.Event),
+		},
 	}
 	return bt, nil
 }
