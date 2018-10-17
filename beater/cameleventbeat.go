@@ -5,20 +5,20 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/codingchipmunk/JolokiaGo"
-	"github.com/codingchipmunk/JolokiaGo/jolokiaSSEStructs"
-	"github.com/codingchipmunk/JolokiaGo/responseValues"
-	"github.com/codingchipmunk/cameleventbeat/camelsse"
-	"github.com/r3labs/sse"
 	"io/ioutil"
 	"net/http"
 	"time"
 
+	"github.com/codingchipmunk/JolokiaGo"
+	"github.com/codingchipmunk/JolokiaGo/jolokiaSSEStructs"
+	"github.com/codingchipmunk/JolokiaGo/responseValues"
+	"github.com/codingchipmunk/cameleventbeat/camelsse"
+	"github.com/codingchipmunk/cameleventbeat/config"
+	"github.com/r3labs/sse"
+
 	"github.com/elastic/beats/libbeat/beat"
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/logp"
-
-	"github.com/codingchipmunk/cameleventbeat/config"
 )
 
 // Cameleventbeat configuration.
@@ -103,9 +103,9 @@ func (bt *Cameleventbeat) Stop() {
 }
 
 func publish_events(beat_events <-chan beat.Event, done <-chan struct{}, client beat.Client) {
-	for{
+	for {
 		select {
-		case <- done:
+		case <-done:
 			return
 		case event := <-beat_events:
 			{
@@ -198,7 +198,6 @@ func register_MBean_for_SSE(agent_url string, client_ID string, bean jolokiaClie
 	return nil
 }
 
-
 //	Requests the Jolokia agent on the given url to recieve a client id which is needed to register for sse requests
 func get_SSE_id(agent_url string) (string, error) {
 	var err error
@@ -233,7 +232,6 @@ func get_SSE_id(agent_url string) (string, error) {
 
 	return sse_value.Id, nil
 }
-
 
 //	make_Jolokia_Request makes an request to the jolokia agent specified in agent_url.
 //	The request is marshaled into JSON and transmitted to the jolokia agent in a POST request.

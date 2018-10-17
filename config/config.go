@@ -17,7 +17,7 @@ type Config struct {
 type Worker struct {
 	//	Count specifies how much workers should be startet. The minimum value is 1.
 	//	Defaults to 1
-	Count  int    `config:"count" validate:"min=1"`
+	Count int `config:"count" validate:"min=1"`
 	//	Prefix specifies the prefix of the workers name, followed by its number.
 	//	Defaults to "worker-"
 	Prefix string `config:"prefix"`
@@ -32,13 +32,13 @@ type Jolokia struct {
 //	MBean descripes the bean which should be listened to
 type MBean struct {
 	// Domain of the MBean. Has no default value and has to be specified in the config file
-	Domain  string `config:"domain" validate:"required"`
+	Domain string `config:"domain" validate:"required"`
 	// Context of the MBean. Has no default value and has to be specified in the config file
 	Context string `config:"context" validate:"required"`
 	// Type of the MBean. Defaults to "tracer".
-	Type    string `config:"type"`
+	Type string `config:"type"`
 	// Name of the MBean. Defaults to "Tracer".
-	Name    string `config:"name"`
+	Name string `config:"name"`
 }
 
 var DefaultConfig = Config{

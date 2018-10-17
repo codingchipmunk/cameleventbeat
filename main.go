@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/codingchipmunk/cameleventbeat/cmd"
-
 	_ "github.com/codingchipmunk/cameleventbeat/include"
 )
 
