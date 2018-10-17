@@ -1,7 +1,10 @@
 /.idea
 /build
-
+/logs
 .DS_Store
 /cameleventbeat
 /cameleventbeat.test
 *.pyc
+
+cameleventbeat.yml
+cameleventbeat.reference.yml
