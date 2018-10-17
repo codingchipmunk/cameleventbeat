@@ -33,6 +33,9 @@ before_install:
   - rsync -az ${TRAVIS_BUILD_DIR}/ $HOME/gopath/src/github.com/codingchipmunk/cameleventbeat/
   - export TRAVIS_BUILD_DIR=$HOME/gopath/src/github.com/codingchipmunk/cameleventbeat/
   - cd $HOME/gopath/src/github.com/codingchipmunk/cameleventbeat/
+  - go get -u github.com/kardianos/govendor
+  - go get -u github.com/codingchipmunk/JolokiaGo
+  - go get -u github.com/r3labs/sse
 
 install:
   - true
