@@ -8,6 +8,10 @@ GOPACKAGES=$(shell govendor list -no-status +local)
 GOBUILD_FLAGS=-i -ldflags "-X $(BEAT_PATH)/vendor/github.com/elastic/beats/libbeat/version.buildTime=$(NOW) -X $(BEAT_PATH)/vendor/github.com/elastic/beats/libbeat/version.commit=$(COMMIT_ID)"
 MAGE_IMPORT_PATH=${BEAT_PATH}/vendor/github.com/magefile/mage
 CHECK_HEADERS_DISABLED=true
+TESTIFY_TOOL_REPO?=github.com/elastic/beats/vendor/github.com/stretchr/testify/assert
+COVERAGE_TOOL_REPO?=github.com/elastic/beats/vendor/github.com/pierrre/gotestcover
+
+go get
 
 # Path to the libbeat Makefile
 -include $(ES_BEATS)/libbeat/scripts/Makefile
@@ -37,3 +41,15 @@ git-add:
 # Collects all dependencies and then calls update
 .PHONY: collect
 collect:
+
+
+# Preparation for tests
+.PHONY: prepare-tests
+prepare-tests:
+	mkdir -p ${COVERAGE_DIR}
+	# gotestcover is needed to fetch coverage for multiple packages
+	go get ${COVERAGE_TOOL_REPO}
+	# testify is needed for unit and integration tests
+	go get ${TESTIFY_TOOL_REPO}
+	# govendor is needed for vendor management
+	go get github.com/kardianos/govendor
