@@ -8,5 +8,5 @@
 /cameleventbeat.test
 *.pyc
 
-cameleventbeat.yml
-cameleventbeat.reference.yml
+./cameleventbeat.yml
+./cameleventbeat.reference.yml
