@@ -1,7 +1,8 @@
 ################### Cameleventbeat Configuration Example #########################
 
 ############################# Cameleventbeat ######################################
-
-cameleventbeat.mbean:
-  domain: "your.domain.name"
-  context: "pop-os/camel-1"
+name: "cameleventbeat"
+cameleventbeat:
+  mbean:
+    domain: "your.domain.name"
+    context: "camel-1"

@@ -3,14 +3,15 @@
 
 package config
 
+import "time"
+
+// Cameleventbeat configuration.
 //	Config holds the configuration of the beat
 type Config struct {
-	//	Beat_name holds the prefered name of the beat used to diferentiate between multiple beats in a cluster environment.
-	// Defaults to "cameleventbeat"
-	Beat_name string  `config:"beat_name"`
-	Jolokia   Jolokia `config:"jolokia"`
-	Worker    Worker  `config:"worker"`
-	MBean     MBean   `config:"mbean"`
+	//	beanName holds the prefered name of the beat used to diferentiate between multiple beats in a cluster environment.
+	Jolokia  Jolokia `config:"jolokia"`
+	Worker   Worker  `config:"worker"`
+	MBean    MBean   `config:"mbean"`
 }
 
 //	Worker holds information to configure the workers
@@ -27,6 +28,8 @@ type Worker struct {
 type Jolokia struct {
 	//	The base-url of the Jolokia-agent
 	URL string `config:"url"`
+	// Timeout for the http client
+	Timeout time.Duration `config:"timeout"`
 }
 
 //	MBean descripes the bean which should be listened to
@@ -42,10 +45,9 @@ type MBean struct {
 }
 
 var DefaultConfig = Config{
-	Beat_name: "cameleventbeat",
-	Jolokia:   defaultJolokia,
-	Worker:    defaultWorker,
-	MBean:     defaultMBean,
+	Jolokia:  defaultJolokia,
+	Worker:   defaultWorker,
+	MBean:    defaultMBean,
 }
 
 var defaultWorker = Worker{
@@ -55,6 +57,7 @@ var defaultWorker = Worker{
 
 var defaultJolokia = Jolokia{
 	URL: "http://localhost:8778/jolokia/",
+	Timeout: 10 * time.Second,
 }
 
 var defaultMBean = MBean{

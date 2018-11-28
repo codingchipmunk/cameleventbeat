@@ -1,25 +1,67 @@
 - key: cameleventbeat
   title: cameleventbeat
-  description:
-  meta:
-    - name: worker_id
-      type: string
-    - name: jolokia_time
-      type: date
+  description: >
+    Sends data from camel
+  fields:
+  - name: beat
+    type: group
+    description: >
+      information of the processing beat
+    fields:
+    - name: workerid
+      description: >
+        The worker which processed the event
     - name: event_processed
       type: date
-  fields:
+      description: >
+        The time the event was processed and ready for beeing published
+
+  - name: camel
+    type: group
+    description: >
+      Camel fields
+    fields:
     - name: endpoint_uri
-      type: string
+      description: >
+        The camel endpoint which triggered the event
     - name: exchange_id
-      type: string
-    - name: breadcrumb
-      type: string
-    - name: body
-      type: string
+      description: >
+        The exchange this event belongs to
     - name: firedtime
       type: date
-    - name: camel_to_endpoint
-      type: string
-    - name: camel_timer_name
-      type: string
+      description: >
+        The time the event was created by camel
+    - name: to_endpoint
+      description: >
+        The endpoint the data was transfered to
+
+    - name: event
+      type: group
+      description: >
+        informations regarding the
+      fields:
+      - name: breadcrumb
+        description: >
+          The breadcrumb of this event
+      - name: body
+        description: >
+          The data body of this event
+
+    - name: timer
+      type: group
+      description: >
+        informations regarding the camel timer
+      fields:
+      - name: name
+        description: >
+          The name of the camel timer
+      - name: firedtime
+        type: date
+        description: >
+          The time the timer triggered
+      - name: period
+        description: >
+          The timer period
+      - name: counter
+        description: >
+          The timer counter
